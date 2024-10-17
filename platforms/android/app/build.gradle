@@ -24,6 +24,16 @@ if (cordovaConfig.IS_GRADLE_PLUGIN_KOTLIN_ENABLED) {
     apply plugin: 'kotlin-android-extensions'
 }
 
+String storageUrl = System.env.FLUTTER_STORAGE_BASE_URL ?: "https://storage.googleapis.com"
+repositories {
+    maven {
+        url '/Users/sashachekunov/Work/RSHB/OF/legacy/cordova_flutter_example/flutter_module/build/host/outputs/repo'
+    }
+    maven {
+        url "$storageUrl/download.flutter.io"
+    }
+}
+
 buildscript {
     apply from: '../CordovaLib/cordova.gradle'
 
@@ -188,7 +198,7 @@ android {
             maxSdkVersion cordovaConfig.MAX_SDK_VERSION
         }
         targetSdkVersion cordovaConfig.SDK_VERSION
-        compileSdkVersion cordovaConfig.COMPILE_SDK_VERSION
+        compileSdkVersion 34
     }
 
     lintOptions {
@@ -267,6 +277,12 @@ android {
         }
         addSigningProps(cdvReleaseSigningPropertiesFile, signingConfigs.release)
     }
+    
+    buildTypes {
+        profile {
+            initWith debug
+        }
+    }
 
     if (cdvDebugSigningPropertiesFile) {
         addSigningProps(cdvDebugSigningPropertiesFile, signingConfigs.debug)
@@ -296,6 +312,10 @@ dependencies {
     // SUB-PROJECT DEPENDENCIES START
     implementation(project(path: ":CordovaLib"))
     // SUB-PROJECT DEPENDENCIES END
+
+    debugImplementation 'com.example.flutter_module:flutter_debug:1.0'
+    profileImplementation 'com.example.flutter_module:flutter_profile:1.0'
+    releaseImplementation 'com.example.flutter_module:flutter_release:1.0'
 }
 
 def addSigningProps(propsFilePath, signingConfig) {

@@ -19,7 +19,24 @@
 var app = {
     // Application Constructor
     initialize: function() {
-        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+        document.addEventListener('deviceready', function() {
+            console.log('Device is ready');
+            var button = document.getElementById('testButton');
+            
+            if (button) {
+                console.log('Кнопка найдена!');
+                button.addEventListener('click', function() {
+                    // Вызов нативного метода через WebView для запуска Flutter
+                    if (typeof Android !== 'undefined' && Android.startFlutterActivity) {
+                        Android.startFlutterActivity();
+                    } else {
+                        console.log("Android interface not available.");
+                    }
+                });
+            } else {
+                console.log('Кнопка не найдена.');
+            }
+        });
     },
 
     // deviceready Event Handler

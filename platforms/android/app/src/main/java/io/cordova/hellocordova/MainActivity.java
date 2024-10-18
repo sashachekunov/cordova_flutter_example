@@ -19,27 +19,21 @@
 
 package io.cordova.hellocordova;
 
-import android.os.Handler;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import io.flutter.embedding.android.FlutterActivity;
-import io.flutter.embedding.engine.FlutterEngine;
-import io.flutter.embedding.engine.FlutterEngineCache;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+import android.widget.Toast;
+import android.content.Intent;
 import org.apache.cordova.CordovaActivity;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
+import io.flutter.embedding.android.FlutterActivity;
 
-public class MainActivity extends CordovaActivity
-{
-    public Intent flutterIntent;
+public class MainActivity extends CordovaActivity {
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // enable Cordova apps to be started in the background
+        // Enable Cordova apps to be started in the background
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.getBoolean("cdvStartInBackground", false)) {
             moveTaskToBack(true);
@@ -48,13 +42,22 @@ public class MainActivity extends CordovaActivity
         // Set by <content src="index.html" /> in config.xml
         loadUrl(launchUrl);
 
-        flutterIntent = FlutterActivity.createDefaultIntent(this);
+        // Добавляем JavaScript интерфейс для взаимодействия с нативным кодом
+        ((WebView) appView.getEngine().getView()).addJavascriptInterface(new WebAppInterface(), "Android");
+    }
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startActivity(flutterIntent);
-            }
-        }, 5000);
+    // Внутренний класс для работы с JavaScript-интерфейсом
+    private class WebAppInterface {
+        @JavascriptInterface
+        public void showNativeToast(String message) {
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+        }
+
+        // Метод для запуска Flutter
+        @JavascriptInterface
+        public void startFlutterActivity() {
+            Intent flutterIntent = FlutterActivity.createDefaultIntent(MainActivity.this);
+            startActivity(flutterIntent);
+        }
     }
 }
